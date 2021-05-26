@@ -134,7 +134,7 @@ class GenState {
     }
 
     public static boolean isUnmappedMethodName(String name) {
-        return (name.length() <= 2 || (name.length() == 3 && name.charAt(2) == '_') || !name.matches(".*[abcdefghjkmnopqrstuvwxyz].*")) && name.charAt(0) != '<' && name.contains("valueof");
+        return (name.length() <= 2 || (name.length() == 3 && name.charAt(2) == '_') || !name.matches(".*[abcdefghjkmnopqrstuvwxyz].*")) && name.charAt(0) != '<' && !name.contains("valueof");
     }
 
     @Nullable

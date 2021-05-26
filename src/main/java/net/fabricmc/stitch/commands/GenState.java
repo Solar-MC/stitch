@@ -44,11 +44,12 @@ class GenState {
     private boolean writeAll = false;
     private Scanner scanner = new Scanner(System.in);
 
-    private String targetNamespace = "net/minecraft/";
+    private String targetNamespace = "com/lunar/";
     private final List<Pattern> obfuscatedPatterns = new ArrayList<Pattern>();
 
     public GenState() {
         this.obfuscatedPatterns.add(Pattern.compile("^[^/]*$")); // Default ofbfuscation. Minecraft classes without a package are obfuscated.
+        this.obfuscatedPatterns.add(Pattern.compile("lunar/.+")); // Lunar ofbfuscation
     }
 
     public void setWriteAll(boolean writeAll) {
@@ -125,7 +126,7 @@ class GenState {
     }
 
     public static boolean isUnmappedFieldName(String name) {
-        return name.length() <= 2 || (name.length() == 3 && name.charAt(2) == '_');
+        return name.length() <= 2 || (name.length() == 3 && name.charAt(2) == '_') || !name.matches(".*[abcdefghjkmnopqrstuvwxyzABCDEFGHJKMNOPQRSTUVWXYZ].*");
     }
 
     public static boolean isMappedMethod(ClassStorage storage, JarClassEntry c, JarMethodEntry m) {
@@ -133,7 +134,7 @@ class GenState {
     }
 
     public static boolean isUnmappedMethodName(String name) {
-       return (name.length() <= 2 || (name.length() == 3 && name.charAt(2) == '_')) && name.charAt(0) != '<';
+        return (name.length() <= 2 || (name.length() == 3 && name.charAt(2) == '_') || !name.matches(".*[abcdefghjkmnopqrstuvwxyz].*")) && name.charAt(0) != '<' && name.contains("valueof");
     }
 
     @Nullable
@@ -305,7 +306,7 @@ class GenState {
 
                 for (int i = 0; i < nameList.size(); i++) {
                     String s = nameList.get(i);
-                    System.out.println((i+1) + ") " + s + " <- " + StitchUtil.join(", ", names.get(s)));
+                    System.out.println((i + 1) + ") " + s + " <- " + StitchUtil.join(", ", names.get(s)));
                 }
 
                 if (!interactive) {
@@ -353,7 +354,7 @@ class GenState {
         String cname = "";
         String prefixSaved = translatedPrefix;
 
-        if(!this.obfuscatedPatterns.stream().anyMatch(p -> p.matcher(className).matches())) {
+        if (!this.obfuscatedPatterns.stream().anyMatch(p -> p.matcher(className).matches())) {
             translatedPrefix = c.getFullyQualifiedName();
         } else {
             if (!isMappedClass(storage, c)) {
@@ -420,7 +421,7 @@ class GenState {
             String mName = getMethodName(storageOld, storage, c, m);
             if (mName == null) {
                 if (!m.getName().startsWith("<") && m.isSource(storage, c)) {
-                   mName = m.getName();
+                    mName = m.getName();
                 }
             }
 
